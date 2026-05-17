@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>O Camaleão - Party Game</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <main class="container">
+        <header>
+            <h1>O Camaleão</h1>
+        </header>
+
+        <section id="tela-config" class="tela ativa">
+            <h2>Jogadores</h2>
+            <div class="grupo-input">
+                <input type="text" id="input-jogador" placeholder="Nome do jogador" maxlength="15" autocomplete="off">
+                <button type="button" class="btn-acao" id="btn-add-jogador">
+                    <i class="ph ph-plus"></i> Add
+                </button>
+            </div>
+            
+            <div class="lista-jogadores" id="lista-jogadores"></div>
+
+            <h2>Categorias de Palavras</h2>
+            <div class="grid-categorias" id="container-categorias"></div>
+
+            <h2>Modo de Jogo</h2>
+            <div class="opcoes-container">
+                <label class="opcao-toggle">
+                    <span>Dica para o Impostor</span>
+                    <input type="checkbox" id="chk-dicas" checked>
+                </label>
+            </div>
+
+            <button class="btn-primario" id="btn-iniciar" disabled>
+                Iniciar Jogo <i class="ph ph-play"></i>
+            </button>
+        </section>
+
+        <section id="tela-passar" class="tela">
+            <div class="centralizado">
+                <div id="cartao-touch" class="cartao-revelar-total">
+                    <div id="conteudo-cartao-padrao" class="cartao-estado">
+                        <span class="vez-de-label">Vez de:</span>
+                        <div class="nome-da-vez" id="nome-jogador-vez">Nome</div>
+                        <div class="instrucao-toque">
+                            <i class="ph ph-hand-finger"></i>
+                            <p>Segure para revelar</p>
+                        </div>
+                    </div>
+                    <div id="conteudo-cartao-secreto" class="cartao-estado" style="display: none;">
+                        </div>
+                </div>
+
+                <button class="btn-primario btn-proximo-fixo" id="btn-proximo">
+                    Próximo Jogador <i class="ph ph-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <section id="tela-discussao" class="tela">
+            <div class="centralizado">
+                <h2>Mesa de Discussão</h2>
+                <p class="texto-discussao">Debatam, façam perguntas e defendam seus palpites. Quem é o mentiroso?</p>
+                
+                <div class="painel-decorativo">
+                    <p><i class="ph ph-microphone"></i> Quem inicia falando:</p>
+                    <span id="jogador-inicial">Nome</span>
+                </div>
+
+                <button class="btn-primario" id="btn-encerrar-rodada">
+                    Encerrar e Revelar <i class="ph ph-gavel"></i>
+                </button>
+            </div>
+        </section>
+
+        <section id="tela-fim" class="tela">
+            <h2>Fim da Rodada</h2>
+            <div class="resultado-final">
+                <p>O Camaleão era: <span id="revelacao-impostor">Nome</span></p>
+                <p>A palavra secreta era: <span id="revelacao-palavra">Palavra</span></p>
+            </div>
+            <button class="btn-primario" id="btn-jogar-novamente">
+                Jogar Novamente <i class="ph ph-arrows-counter-clockwise"></i>
+            </button>
+            <button class="btn-secundario" id="btn-voltar-menu">
+                <i class="ph ph-gear"></i> Alterar Configurações
+            </button>
+        </section>
+    </main>
+
+    <script src="banco.js"></script>
+    <script src="code.js"></script>
+</body>
+</html>

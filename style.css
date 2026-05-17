@@ -1,0 +1,477 @@
+:root {
+    --bg-principal: #060509;
+    --bg-card: rgba(21, 20, 27, 0.7);
+    --bg-input: #17151e;
+    --cor-primaria: #7c3aed;
+    --cor-primaria-hover: #9061f9;
+    --cor-erro: #ff4757;
+    --cor-texto: #f4f4f5;
+    --cor-subtexto: #9ca3af;
+    --cor-destaque: #00e676;
+    --border-ui: rgba(255, 255, 255, 0.06);
+    --neon-glow: 0 0 20px rgba(124, 58, 237, 0.3);
+}
+
+/* Reset Global Otimizado para Mobile */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-tap-highlight-color: transparent; 
+}
+
+body {
+    background-color: var(--bg-principal);
+    background-image: 
+        radial-gradient(circle at 50% -20%, rgba(124, 58, 237, 0.25) 0%, transparent 60%),
+        radial-gradient(circle at 100% 100%, rgba(0, 230, 118, 0.03) 0%, transparent 40%);
+    color: var(--cor-texto);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100dvh; 
+    padding: 16px;
+    overflow-x: hidden;
+}
+
+/* Container Visual Premium (Glassmorphism) */
+.container {
+    width: 100%;
+    max-width: 400px;
+    min-height: 80vh;
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-ui);
+    border-radius: 32px;
+    padding: 32px 24px;
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+}
+
+header {
+    margin-bottom: 24px;
+}
+
+h1 {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #ffffff 30%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+h2 {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 12px;
+    color: #6b7280;
+}
+
+/* Telas e Animações */
+.tela {
+    display: none;
+    flex: 1;
+    flex-direction: column; 
+    justify-content: space-between;
+}
+
+.tela.ativa {
+    display: flex;
+    animation: smoothUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+}
+
+@keyframes smoothUp {
+    from { opacity: 0; transform: scale(0.97) translateY(14px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Inputs Modernos */
+.grupo-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+input[type="text"] {
+    flex: 1;
+    padding: 14px 18px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--bg-input);
+    color: var(--cor-texto);
+    font-size: 16px; 
+    outline: none;
+    transition: all 0.2s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+input[type="text"]:focus {
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+    background: #1d1a26;
+}
+
+/* Lista de Jogadores Minimalista */
+.lista-jogadores {
+    max-height: 140px;
+    overflow-y: auto;
+    margin-bottom: 24px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 18px;
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    -webkit-overflow-scrolling: touch; 
+}
+
+.lista-jogadores::-webkit-scrollbar {
+    width: 4px;
+}
+.lista-jogadores::-webkit-scrollbar-thumb {
+    background: #374151;
+    border-radius: 99px;
+}
+
+.item-jogador {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #17161c;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.item-jogador:last-child { margin-bottom: 0; }
+
+.btn-remover {
+    background: transparent;
+    color: #4b5563;
+    font-size: 1.2rem;
+    padding: 2px 8px;
+}
+.btn-remover:hover { color: var(--cor-erro); }
+
+/* Grid de Categorias (Estilo Botões Minimalistas) */
+.grid-categorias {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.opcao-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 10px;
+    background: var(--bg-input);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
+    cursor: pointer;
+    font-weight: 700;
+    color: #6b7280;
+    font-size: 0.85rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.opcao-checkbox input { position: absolute; opacity: 0; }
+
+.opcao-checkbox:has(input:checked) {
+    border-color: var(--cor-primaria);
+    background: rgba(124, 58, 237, 0.12);
+    color: #fff;
+    box-shadow: var(--neon-glow);
+}
+
+/* Toggle Switch de Ajustes */
+.opcoes-container { margin-bottom: 24px; }
+
+.opcao-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-input);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 16px;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.opcao-toggle input {
+    accent-color: var(--cor-primaria);
+    width: 20px;
+    height: 20px;
+}
+
+/* Botões Gerais */
+button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+    touch-action: manipulation; 
+}
+
+.btn-primario {
+    background: var(--cor-primaria);
+    color: #fff;
+    width: 100%;
+    margin-top: auto; 
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.25);
+}
+
+.btn-primario:active:not(:disabled) {
+    background: var(--cor-primaria-hover);
+    transform: scale(0.98);
+}
+
+.btn-primario:disabled {
+    background: #16151a;
+    color: #4b5563;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.btn-secundario {
+    background: transparent;
+    color: var(--cor-subtexto);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    width: 100%;
+    margin-top: 12px;
+}
+.btn-secundario:active { background: rgba(255, 255, 255, 0.03); color: #fff; }
+
+.btn-acao { background: #fff; color: #000; padding: 0 16px; }
+
+/* ---------------------------------------------------- */
+/* NOVO DESIGN DO CARTÃO INTEGRAL (TELA 2) */
+/* ---------------------------------------------------- */
+.centralizado {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    flex: 1;
+}
+
+.cartao-revelar-total {
+    background: linear-gradient(145deg, #16141d 0%, #0d0c12 100%);
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 28px;
+    min-height: 380px;
+    
+    /* MODIFICAÇÃO AQUI: Zeramos o padding vertical (48px mudou para 0) */
+    padding: 0 24px; 
+    
+    margin: 12px 0 24px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.cartao-estado {
+    width: 100%;
+    text-align: center;
+    animation: fadeInFast 0.15s ease;
+    
+    /* ADICIONE ESTA LINHA AQUI: Ela empurra o pontilhado para as extremidades */
+    padding: 48px 0; 
+}
+
+/* Quando o cartão inteiro é pressionado */
+.cartao-revelar-total:active {
+    border-style: solid;
+    border-color: var(--cor-primaria);
+    background: linear-gradient(145deg, #1e192c 0%, #110e1a 100%);
+    box-shadow: 0 0 30px rgba(124, 58, 237, 0.2), inset 0 4px 20px rgba(0, 0, 0, 0.2);
+    transform: scale(0.97);
+}
+
+@keyframes fadeInFast {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.vez-de-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--cor-subtexto);
+    font-weight: 700;
+}
+
+.nome-da-vez {
+    font-size: 2.2rem;
+    color: #fff;
+    margin: 8px 0 24px 0;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    word-break: break-word;
+}
+
+.instrucao-toque {
+    color: var(--cor-primaria-hover);
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.instrucao-toque i {
+    font-size: 1.8rem;
+    animation: fingerPulse 1.5s infinite ease-in-out;
+}
+
+@keyframes fingerPulse {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-4px) scale(1.05); }
+}
+
+/* Conteúdos Internos Revelados */
+.alerta-impostor {
+    color: var(--cor-erro);
+    font-size: 1.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    text-shadow: 0 0 15px rgba(255, 71, 87, 0.3);
+}
+
+.dica-texto {
+    display: inline-block;
+    font-size: 1.1rem;
+    color: #fff;
+    margin-top: 16px;
+    background: rgba(255, 71, 87, 0.1);
+    border: 1px solid rgba(255, 71, 87, 0.2);
+    padding: 8px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.secret-word-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.secret-word-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--cor-subtexto);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.secret-word-value {
+    color: var(--cor-destaque);
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    text-shadow: 0 0 20px rgba(0, 230, 118, 0.2);
+}
+
+.btn-proximo-fixo {
+    margin-top: 0; /* Alinhamento fixado independente do cartão */
+}
+
+/* ---------------------------------------------------- */
+
+/* Telas de Discussão e Fim */
+.texto-discussao {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--cor-subtexto);
+    margin-bottom: 20px;
+}
+
+.painel-decorativo {
+    background: var(--bg-input);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 20px;
+    padding: 24px;
+    margin: auto 0;
+}
+
+.painel-decorativo p {
+    font-size: 0.85rem;
+    color: var(--cor-subtexto);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.painel-decorativo span {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--cor-destaque);
+}
+
+.resultado-final {
+    background: var(--bg-input);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    text-align: left;
+}
+
+.resultado-final p {
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    color: var(--cor-subtexto);
+    display: flex;
+    flex-direction: column;
+}
+
+.resultado-final p:last-child { margin-bottom: 0; }
+
+.resultado-final span {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-top: 4px;
+}
+
+#revelacao-impostor { color: var(--cor-erro); }
+#revelacao-palavra { color: var(--cor-destaque); }
+
+/* Adaptação para Celulares Pequenos */
+@media (max-height: 680px) {
+    .container { padding: 20px 16px; min-height: 90vh; }
+    .nome-da-vez { font-size: 1.8rem; }
+    .cartao-revelar-total { min-height: 220px; }
+    h1 { font-size: 1.4rem; }
+}
