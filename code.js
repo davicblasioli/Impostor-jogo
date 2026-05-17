@@ -160,11 +160,11 @@ function prepararConteudoSecreto() {
     if (jogadorAtual === impostor) {
         if (ativarDicas) {
             conteudoSecreto.innerHTML = `
-                <span class="alerta-impostor">Você é o Camaleão</span>
+                <span class="alerta-impostor">Você é o Impostor</span>
                 <div><span class="dica-texto">Dica: <strong>${dicaSorteada}</strong></span></div>
             `;
         } else {
-            conteudoSecreto.innerHTML = `<span class="alerta-impostor">Você é o Camaleão</span>`;
+            conteudoSecreto.innerHTML = `<span class="alerta-impostor">Você é o Impostor</span>`;
         }
     } else {
         conteudoSecreto.innerHTML = `
