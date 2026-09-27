@@ -1,223 +1,327 @@
-// ESTADO INTERNO DO JOGO
+// ====================================================
+// ESTADO GLOBAL DO JOGO
+// ====================================================
 let jogadores = [];
-let categoriasSelecionadas = [];
-let ativarDicas = true;
-
-let palavraSorteada = null;
-let dicaSorteada = "";
-let impostor = "";
-let jogadorInicialRodada = ""; 
 let indiceJogadorAtual = 0;
+let indiceImpostor = -1;
+let palavraSorteada = { palavra: "", dica: "" };
+let estaRevelando = false;
 
-// MAPEAMENTO DO DOM
-const inputs = {
-    jogador: document.getElementById('input-jogador'),
-    chkDicas: document.getElementById('chk-dicas')
-};
+// ====================================================
+// SISTEMA DE ALERTS (SWEETALERT2)
+// ====================================================
+function mostrarAlerta(mensagem, titulo = 'Atenção', icone = 'warning') {
+    const isClaro = document.documentElement.getAttribute('data-tema') === 'claro';
 
-const botoes = {
-    addJogador: document.getElementById('btn-add-jogador'),
-    iniciar: document.getElementById('btn-iniciar'),
-    proximo: document.getElementById('btn-proximo'),
-    encerrar: document.getElementById('btn-encerrar-rodada'),
-    jogarDeNovo: document.getElementById('btn-jogar-novamente'),
-    voltarMenu: document.getElementById('btn-voltar-menu')
-};
-
-const telas = {
-    config: document.getElementById('tela-config'),
-    passar: document.getElementById('tela-passar'),
-    discussao: document.getElementById('tela-discussao'),
-    fim: document.getElementById('tela-fim')
-};
-
-const listas = {
-    jogadores: document.getElementById('lista-jogadores'),
-    categorias: document.getElementById('container-categorias')
-};
-
-const cartaoTouch = document.getElementById('cartao-touch');
-const conteudoPadrao = document.getElementById('conteudo-cartao-padrao');
-const conteudoSecreto = document.getElementById('conteudo-cartao-secreto');
-
-// CONFIGURAÇÃO INICIAL
-window.addEventListener('load', () => {
-    renderizarCategorias();
-    verificarCondicoesInicio();
-    configurarEventosTouch();
-});
-
-function renderizarCategorias() {
-    listas.categorias.innerHTML = '';
-    Object.keys(bancoPalavras).forEach(chave => {
-        const label = document.createElement('label');
-        label.className = 'opcao-checkbox';
-        label.innerHTML = `
-            <input type="checkbox" value="${chave}" checked class="chk-categoria">
-            <span>${nomesExibicaoCategorias[chave]}</span>
-        `;
-        listas.categorias.appendChild(label);
-
-        label.querySelector('input').addEventListener('change', () => {
-            atualizarCategoriasSelecionadas();
-            verificarCondicoesInicio();
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: titulo,
+            text: mensagem,
+            icon: icone,
+            background: isClaro ? '#ffffff' : '#15141b',
+            color: isClaro ? '#0f172a' : '#f4f4f5',
+            confirmButtonColor: '#7c3aed',
+            confirmButtonText: 'Entendi'
         });
+    } else {
+        alert(`${titulo}: ${mensagem}`);
+    }
+}
+
+// ====================================================
+// NAVEGAÇÃO E CONTROLE DE TEMA (APENAS TELA INICIAL)
+// ====================================================
+function mudarTela(idTela) {
+    document.querySelectorAll('.tela').forEach(tela => {
+        tela.classList.remove('ativa');
     });
-    atualizarCategoriasSelecionadas();
+
+    const telaDestino = document.getElementById(idTela);
+    if (telaDestino) {
+        telaDestino.classList.add('ativa');
+    }
+
+    const btnTema = document.getElementById('btn-tema');
+
+    if (idTela === 'tela-config') {
+        document.body.classList.add('na-tela-inicio');
+        if (btnTema) btnTema.style.display = 'flex'; // Volta a mostrar o botão no menu
+    } else {
+        document.body.classList.remove('na-tela-inicio');
+        if (btnTema) btnTema.style.display = 'none'; // Oculta o botão nos outros ecrãs
+    }
 }
 
-function atualizarCategoriasSelecionadas() {
-    const checkboxes = document.querySelectorAll('.chk-categoria:checked');
-    categoriasSelecionadas = Array.from(checkboxes).map(cb => cb.value);
+function alternarTema() {
+    const telaConfig = document.getElementById('tela-config');
+    if (!telaConfig || !telaConfig.classList.contains('ativa')) return;
+
+    const html = document.documentElement;
+    const btnTema = document.getElementById('btn-tema');
+    const temaAtual = html.getAttribute('data-tema');
+    const novoTema = temaAtual === 'claro' ? 'escuro' : 'claro';
+
+    html.setAttribute('data-tema', novoTema);
+    if (btnTema) btnTema.textContent = novoTema === 'claro' ? '☀️' : '🌙';
+    localStorage.setItem('tema_impostor', novoTema);
 }
 
-botoes.addJogador.addEventListener('click', adicionarJogador);
-inputs.jogador.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') adicionarJogador();
-});
-
-function adicionarJogador() {
-    const nome = inputs.jogador.value.trim();
-    if (nome === "") return;
+function carregarTemaSalvo() {
+    const temaSalvo = localStorage.getItem('tema_impostor') || 'escuro';
+    const html = document.documentElement;
+    const btnTema = document.getElementById('btn-tema');
     
+    html.setAttribute('data-tema', temaSalvo);
+    if (btnTema) btnTema.textContent = temaSalvo === 'claro' ? '☀️' : '🌙';
+}
+
+// ====================================================
+// GERENCIAMENTO DE JOGADORES
+// ====================================================
+function adicionarJogador() {
+    const input = document.getElementById('input-jogador');
+    if (!input) return;
+
+    const nome = input.value.trim();
+
+    if (!nome) {
+        mostrarAlerta("Digite o nome do jogador antes de adicionar!", "Campo Vazio", "warning");
+        return;
+    }
+
     if (jogadores.includes(nome)) {
-        alert("Este nome já está na lista!");
+        mostrarAlerta("Este nome já está na lista!", "Nome Duplicado", "info");
         return;
     }
 
     jogadores.push(nome);
-    inputs.jogador.value = "";
-    renderizarJogadores();
-    verificarCondicoesInicio();
+    input.value = "";
+    input.focus();
+    atualizarListaJogadores();
 }
 
-window.removerJogador = function(nome) {
-    jogadores = jogadores.filter(j => j !== nome);
-    renderizarJogadores();
-    verificarCondicoesInicio();
-};
+function removerJogador(index) {
+    jogadores.splice(index, 1);
+    atualizarListaJogadores();
+}
 
-function renderizarJogadores() {
-    listas.jogadores.innerHTML = '';
-    jogadores.forEach(nome => {
-        const div = document.createElement('div');
-        div.className = 'item-jogador';
-        div.innerHTML = `
+function atualizarListaJogadores() {
+    const container = document.getElementById('lista-jogadores');
+    const btnIniciar = document.getElementById('btn-iniciar');
+
+    if (!container || !btnIniciar) return;
+
+    container.innerHTML = "";
+    jogadores.forEach((nome, index) => {
+        const item = document.createElement('div');
+        item.className = 'item-jogador';
+        item.innerHTML = `
             <span>${nome}</span>
-            <button class="btn-remover" onclick="removerJogador('${nome}')"><i class="ph ph-trash"></i></button>
+            <button type="button" class="btn-remover" onclick="removerJogador(${index})" aria-label="Remover">✕</button>
         `;
-        listas.jogadores.appendChild(div);
+        container.appendChild(item);
     });
+
+    btnIniciar.disabled = jogadores.length < 3;
 }
 
-function verificarCondicoesInicio() {
-    const temMinimoJogadores = jogadores.length >= 3;
-    const temCategoriaSelecionada = categoriasSelecionadas.length > 0;
-    botoes.iniciar.disabled = !(temMinimoJogadores && temCategoriaSelecionada);
+// ====================================================
+// LÓGICA DO JOGO (SORTEIO & PARTIDA)
+// ====================================================
+function obterBancoDeDados() {
+    // Agora busca corretamente pelo banco no plural
+    if (typeof bancoPalavras !== 'undefined') return bancoPalavras;
+    if (typeof bancoDeDados !== 'undefined') return bancoDeDados;
+    if (typeof banco !== 'undefined') return banco;
+    return null;
 }
-
-function irParaTela(telaAlvo) {
-    Object.values(telas).forEach(t => t.classList.remove('ativa'));
-    telaAlvo.classList.add('ativa');
-}
-
-botoes.iniciar.addEventListener('click', iniciarJogo);
-botoes.jogarDeNovo.addEventListener('click', iniciarJogo);
 
 function iniciarJogo() {
-    ativarDicas = inputs.chkDicas.checked;
+    if (jogadores.length < 3) {
+        mostrarAlerta("Adicione pelo menos 3 jogadores para começar a jogar!", "Poucos Jogadores", "warning");
+        return;
+    }
 
-    const categoriaAleatoria = categoriasSelecionadas[Math.floor(Math.random() * categoriasSelecionadas.length)];
-    const listaPalavras = bancoPalavras[categoriaAleatoria];
-    const objetoPalavra = listaPalavras[Math.floor(Math.random() * listaPalavras.length)];
-    
-    palavraSorteada = objetoPalavra.palavra;
-    dicaSorteada = objetoPalavra.dica;
+    const checkboxes = document.querySelectorAll('.grid-categorias input[type="checkbox"]:checked');
+    const categoriasSelecionadas = Array.from(checkboxes).map(cb => cb.value);
 
-    impostor = jogadores[Math.floor(Math.random() * jogadores.length)];
-    jogadorInicialRodada = jogadores[Math.floor(Math.random() * jogadores.length)];
+    if (categoriasSelecionadas.length === 0) {
+        mostrarAlerta("Selecione pelo menos uma categoria de palavra!", "Sem Categorias", "warning");
+        return;
+    }
 
-    indiceJogadorAtual = 0;
-    configurarFasePassarCelular();
-    irParaTela(telas.passar);
-}
+    const bancoAtivo = obterBancoDeDados();
+    if (!bancoAtivo) {
+        mostrarAlerta("O arquivo banco.js não foi encontrado ou a variável 'bancoPalavras' não está definida.", "Erro de Banco", "error");
+        return;
+    }
 
-// TELA 2: MECÂNICA DE REVELAÇÃO INTEGRAL DO CARTÃO
-function configurarFasePassarCelular() {
-    // O botão Próximo Jogador agora SEMPRE inicia visível nesta tela
-    botoes.proximo.style.display = 'flex'; 
-    
-    conteudoPadrao.style.display = 'block';
-    conteudoSecreto.style.display = 'none';
-    
-    document.getElementById('nome-jogador-vez').innerText = jogadores[indiceJogadorAtual];
-    prepararConteudoSecreto();
-}
-
-function prepararConteudoSecreto() {
-    const jogadorAtual = jogadores[indiceJogadorAtual];
-
-    if (jogadorAtual === impostor) {
-        if (ativarDicas) {
-            conteudoSecreto.innerHTML = `
-                <span class="alerta-impostor">Você é o Impostor</span>
-                <div><span class="dica-texto">Dica: <strong>${dicaSorteada}</strong></span></div>
-            `;
-        } else {
-            conteudoSecreto.innerHTML = `<span class="alerta-impostor">Você é o Impostor</span>`;
+    let bancoFiltrado = [];
+    categoriasSelecionadas.forEach(cat => {
+        if (bancoAtivo[cat] && Array.isArray(bancoAtivo[cat])) {
+            bancoFiltrado = bancoFiltrado.concat(bancoAtivo[cat]);
         }
+    });
+
+    if (bancoFiltrado.length === 0) {
+        mostrarAlerta("Não foram encontradas palavras para as categorias selecionadas.", "Erro de Banco", "error");
+        return;
+    }
+
+    palavraSorteada = bancoFiltrado[Math.floor(Math.random() * bancoFiltrado.length)];
+    indiceImpostor = Math.floor(Math.random() * jogadores.length);
+    indiceJogadorAtual = 0;
+
+    mudarTela('tela-passar');
+    prepararCartaoJogador();
+}
+
+function prepararCartaoJogador() {
+    estaRevelando = false;
+    const cartao = document.getElementById('cartao-touch');
+    const padrao = document.getElementById('conteudo-cartao-padrao');
+    const secreto = document.getElementById('conteudo-cartao-secreto');
+    const nomeVez = document.getElementById('nome-jogador-vez');
+
+    if (!cartao || !padrao || !secreto || !nomeVez) return;
+
+    const corClasse = indiceJogadorAtual % 8;
+    cartao.className = `cartao-revelar-total dinamico cor-player-${corClasse}`;
+    
+    padrao.style.display = 'block';
+    secreto.style.display = 'none';
+    nomeVez.textContent = jogadores[indiceJogadorAtual];
+}
+
+function revelarInicio() {
+    if (estaRevelando) return;
+    estaRevelando = true;
+
+    const padrao = document.getElementById('conteudo-cartao-padrao');
+    const secreto = document.getElementById('conteudo-cartao-secreto');
+    const chkDicas = document.getElementById('chk-dicas');
+    const querDica = chkDicas ? chkDicas.checked : true;
+
+    if (!padrao || !secreto) return;
+
+    padrao.style.display = 'none';
+    secreto.style.display = 'block';
+
+    if (indiceJogadorAtual === indiceImpostor) {
+        let htmlImpostor = `<div class="alerta-impostor">Você é o Impostor!</div>`;
+        if (querDica && palavraSorteada.dica) {
+            htmlImpostor += `<div class="dica-texto">Dica: <strong>${palavraSorteada.dica}</strong></div>`;
+        }
+        secreto.innerHTML = htmlImpostor;
     } else {
-        conteudoSecreto.innerHTML = `
+        secreto.innerHTML = `
             <div class="secret-word-container">
-                <span class="secret-word-title">Palavra Secreta</span>
-                <span class="secret-word-value">${palavraSorteada}</span>
+                <span class="secret-word-title">A palavra é:</span>
+                <span class="secret-word-value">${palavraSorteada.palavra}</span>
             </div>
         `;
     }
 }
 
-function mostrarPalavra() {
-    conteudoPadrao.style.display = 'none';
-    conteudoSecreto.style.display = 'block';
+function revelarFim() {
+    if (!estaRevelando) return;
+    estaRevelando = false;
+
+    const padrao = document.getElementById('conteudo-cartao-padrao');
+    const secreto = document.getElementById('conteudo-cartao-secreto');
+
+    if (padrao && secreto) {
+        padrao.style.display = 'block';
+        secreto.style.display = 'none';
+    }
 }
 
-function esconderPalavra() {
-    conteudoPadrao.style.display = 'block';
-    conteudoSecreto.style.display = 'none';
-}
-
-function configurarEventosTouch() {
-    // Mobile Touch
-    cartaoTouch.addEventListener('touchstart', (e) => {
-        e.preventDefault(); 
-        mostrarPalavra();
-    });
-    cartaoTouch.addEventListener('touchend', esconderPalavra);
-    cartaoTouch.addEventListener('touchcancel', esconderPalavra);
-
-    // Desktop Mouse Fallback
-    cartaoTouch.addEventListener('mousedown', mostrarPalavra);
-    cartaoTouch.addEventListener('mouseup', esconderPalavra);
-    cartaoTouch.addEventListener('mouseleave', esconderPalavra);
-}
-
-botoes.proximo.addEventListener('click', () => {
+function proximoJogador() {
     indiceJogadorAtual++;
     if (indiceJogadorAtual < jogadores.length) {
-        configurarFasePassarCelular();
+        prepararCartaoJogador();
     } else {
-        document.getElementById('jogador-inicial').innerText = jogadorInicialRodada;
-        irParaTela(telas.discussao);
+        const jogadorInicial = jogadores[Math.floor(Math.random() * jogadores.length)];
+        const elInicial = document.getElementById('jogador-inicial');
+        if (elInicial) elInicial.textContent = jogadorInicial;
+        mudarTela('tela-discussao');
     }
-});
+}
 
-botoes.encerrar.addEventListener('click', () => {
-    document.getElementById('revelacao-impostor').innerText = impostor;
-    document.getElementById('revelacao-palavra').innerText = palavraSorteada;
-    irParaTela(telas.fim);
-});
+function encerrarERevelar() {
+    const elImpostor = document.getElementById('revelacao-impostor');
+    const elPalavra = document.getElementById('revelacao-palavra');
+    const elDica = document.getElementById('revelacao-dica');
+    const containerDicaFinal = document.getElementById('container-dica-final');
+    const chkDicas = document.getElementById('chk-dicas');
+    
+    const querDica = chkDicas ? chkDicas.checked : true;
 
-botoes.voltarMenu.addEventListener('click', () => {
-    irParaTela(telas.config);
-    verificarCondicoesInicio();
+    if (elImpostor) elImpostor.textContent = jogadores[indiceImpostor] || "N/A";
+    if (elPalavra) elPalavra.textContent = palavraSorteada.palavra || "N/A";
+    
+    if (querDica && palavraSorteada.dica) {
+        if (elDica) elDica.textContent = palavraSorteada.dica;
+        if (containerDicaFinal) containerDicaFinal.style.display = ''; 
+    } else {
+        if (containerDicaFinal) containerDicaFinal.style.display = 'none'; 
+    }
+
+    mudarTela('tela-fim');
+}
+
+// ====================================================
+// EVENT LISTENERS E INICIALIZAÇÃO
+// ====================================================
+document.addEventListener('DOMContentLoaded', () => {
+    carregarTemaSalvo();
+    mudarTela('tela-config');
+
+    const btnTema = document.getElementById('btn-tema');
+    if (btnTema) btnTema.addEventListener('click', alternarTema);
+
+    const btnAdd = document.getElementById('btn-add-jogador');
+    if (btnAdd) btnAdd.addEventListener('click', adicionarJogador);
+    
+    const inputJogador = document.getElementById('input-jogador');
+    if (inputJogador) {
+        inputJogador.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                adicionarJogador();
+            }
+        });
+    }
+
+    const btnIniciar = document.getElementById('btn-iniciar');
+    if (btnIniciar) btnIniciar.addEventListener('click', iniciarJogo);
+
+    const btnProximo = document.getElementById('btn-proximo');
+    if (btnProximo) btnProximo.addEventListener('click', proximoJogador);
+
+    const btnEncerrar = document.getElementById('btn-encerrar-rodada');
+    if (btnEncerrar) btnEncerrar.addEventListener('click', encerrarERevelar);
+
+    const btnJogarNovamente = document.getElementById('btn-jogar-novamente');
+    if (btnJogarNovamente) btnJogarNovamente.addEventListener('click', iniciarJogo);
+
+    const btnVoltarMenu = document.getElementById('btn-voltar-menu');
+    if (btnVoltarMenu) btnVoltarMenu.addEventListener('click', () => mudarTela('tela-config'));
+
+    // Cartão Pass-and-Play
+    const cartaoTouch = document.getElementById('cartao-touch');
+    if (cartaoTouch) {
+        cartaoTouch.addEventListener('mousedown', revelarInicio);
+        cartaoTouch.addEventListener('mouseup', revelarFim);
+        cartaoTouch.addEventListener('mouseleave', revelarFim);
+
+        cartaoTouch.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            revelarInicio();
+        });
+        cartaoTouch.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            revelarFim();
+        });
+    }
 });

@@ -1,17 +1,21 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-tema="escuro">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Impostor - Party Game</title>
+    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="na-tela-inicio">
 
     <main class="container">
         <header>
             <h1>Impostor</h1>
+            <button id="btn-tema" class="btn-tema-toggle" aria-label="Alternar Tema">🌙</button>
         </header>
 
         <section id="tela-config" class="tela ativa">
@@ -26,7 +30,14 @@
             <div class="lista-jogadores" id="lista-jogadores"></div>
 
             <h2>Categorias de Palavras</h2>
-            <div class="grid-categorias" id="container-categorias"></div>
+            <div class="grid-categorias" id="container-categorias">
+                <label class="opcao-checkbox"><input type="checkbox" value="comida" checked><span>Comida</span></label>
+                <label class="opcao-checkbox"><input type="checkbox" value="famosos" checked><span>Famosos</span></label>
+                <label class="opcao-checkbox"><input type="checkbox" value="objetos" checked><span>Objetos</span></label>
+                <label class="opcao-checkbox"><input type="checkbox" value="profissao" checked><span>Profissão</span></label>
+                <label class="opcao-checkbox"><input type="checkbox" value="lugares" checked><span>Lugares</span></label>
+                <label class="opcao-checkbox"><input type="checkbox" value="animais" checked><span>Animais</span></label>
+            </div>
 
             <h2>Modo de Jogo</h2>
             <div class="opcoes-container">
@@ -52,8 +63,7 @@
                             <p>Segure para revelar</p>
                         </div>
                     </div>
-                    <div id="conteudo-cartao-secreto" class="cartao-estado" style="display: none;">
-                        </div>
+                    <div id="conteudo-cartao-secreto" class="cartao-estado" style="display: none;"></div>
                 </div>
 
                 <button class="btn-primario btn-proximo-fixo" id="btn-proximo">
@@ -78,11 +88,14 @@
             </div>
         </section>
 
+        <!-- TELA 4: REVELAÇÃO FINAL -->
         <section id="tela-fim" class="tela">
             <h2>Fim da Rodada</h2>
             <div class="resultado-final">
                 <p>O Impostor era: <span id="revelacao-impostor">Nome</span></p>
-                <p>A palavra secreta era: <span id="revelacao-palavra">Palavra</span></p>
+                <p>A palavra era: <span id="revelacao-palavra">Palavra</span></p>
+                <!-- Container com ID para ser ocultado pelo JS caso não haja dica -->
+                <p id="container-dica-final">A dica era: <span id="revelacao-dica">Dica</span></p>
             </div>
             <button class="btn-primario" id="btn-jogar-novamente">
                 Jogar Novamente <i class="ph ph-arrows-counter-clockwise"></i>
