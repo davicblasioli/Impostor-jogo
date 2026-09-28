@@ -193,18 +193,20 @@ h2 {
 
 .grupo-input {
     display: flex;
-    gap: 10px;
+    gap: 8px; /* Reduzido de 10px para 8px para diminuir o espaço entre input e botão */
     margin-bottom: 18px;
+    width: 100%; /* Garante que não ultrapasse o container */
 }
 
 input[type="text"] {
     flex: 1;
-    padding: 14px 18px;
-    border-radius: 16px;
+    min-width: 0; /* Previne que o input force o layout a estourar em telas muito pequenas */
+    padding: 12px 14px; /* Diminuiu um pouco o padding interno para caber melhor na tela */
+    border-radius: 14px; /* Ajuste sutil na borda */
     border: 1px solid var(--border-ui);
     background: var(--bg-input);
     color: var(--cor-texto);
-    font-size: 16px;
+    font-size: 15px; /* Fonte levemente menor no input */
     outline: none;
     transition: all 0.2s ease;
     -webkit-appearance: none;
@@ -214,6 +216,12 @@ input[type="text"] {
 input[type="text"]:focus {
     border-color: var(--cor-primaria);
     box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
+/* Criar um ajuste específico para o botão de adicionar jogador, para ele não ficar tão grande */
+#btn-add-jogador {
+    padding: 12px 16px; /* Padding reduzido comparado aos botões principais */
+    flex-shrink: 0; /* Impede que o botão seja esmagado, mas respeitando o espaço do flex */
 }
 
 .lista-jogadores {
